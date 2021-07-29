@@ -13,7 +13,7 @@ class Config:
     #Mpesa app configs
 
     MPESA_APP_CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
-    MPESA_APP_CONSUMER_SECRET = os.environ.get("CONSUMER_SEC")
+    MPESA_APP_CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
     MPESA_APP_AUTH_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
 
 
