@@ -1,12 +1,27 @@
 from flask.globals import current_app
+from flask import jsonify, url_for
 from . import mpesa_bp
 
-from app.mpesa_utils import access_token
+from app.mpesa_utils import Mpesa
+
 
 @mpesa_bp.route('/')
 def index():
 
-    get_access_token = access_token(current_app.config['MPESA_APP_CONSUMER_KEY'],
-                                    current_app.config['MPESA_APP_CONSUMER_SECRET'], current_app.config['MPESA_APP_AUTH_URL'])
-
     return "Welcome to Mpesa Integration To Flask"
+
+
+@mpesa_bp.route('/sdk_push/<int:number>', methods=["GET", "POST"])
+def sdk_push(number):
+
+    mpesa = Mpesa()
+
+    transact = mpesa.push_lipa_na_mpesa_stk(number)
+
+    if transact:
+
+        return jsonify({"message":"Please confirm your payment on your device"})
+
+    else:
+
+        return jsonify({"Message":"Transaction request failed"})

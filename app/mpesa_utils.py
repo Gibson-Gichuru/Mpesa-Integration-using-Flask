@@ -1,20 +1,99 @@
-## flask related imports
+# flask related imports
 from flask import current_app
 
-## Python Standard imports
+# Python Standard imports
 import base64
+from flask.app import Flask
+from flask.wrappers import Response
 import requests
-
+from datetime import datetime
 import json
 
-def access_token(consumer_key, consumer_secret, auth_url):
+import pdb
 
-    auth_token = base64.b64encode(f"{consumer_key}:{consumer_secret}".encode('utf8')).decode('utf8')
 
-    headers = {"Authorization":f"Basic {auth_token}"}
+class Mpesa:
 
-    query_string = {"grant_type":"client_credentials"}
+    def __init__(self):
 
-    response_data = requests.get(auth_url, headers = headers, params=query_string)
+        self.consumer_key = current_app.config['MPESA_CONSUMER_KEY']
+        self.consumer_secret = current_app.config['MPESA_CONSUMER_SECRET']
 
-    return response_data
+        self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
+        self.stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+
+    def access_token(self):
+
+        auth_token = base64.b64encode(
+            f"{self.consumer_key}:{self.consumer_secret}".encode('utf8')).decode('utf8')
+
+        headers = {"Authorization": f"Basic {auth_token}"}
+
+        query_string = {"grant_type": "client_credentials"}
+
+        response_data = requests.get(
+            self.auth_url, headers=headers, params=query_string)
+
+        return response_data.json()
+
+    def lipa_na_mpesa_password(self):
+
+        lipa_time = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        business_code = current_app.config['MPESA_BUSINESS_CODE']
+        pass_key = current_app.config['MPESA_PASS_KEY']
+
+        raw_transaction_password = business_code + pass_key + lipa_time
+
+        transaction_password = base64.b64encode(
+            raw_transaction_password.encode('utf8'))
+
+        return transaction_password.decode('utf8'), lipa_time
+
+    def push_lipa_na_mpesa_stk(self, number):
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer 0SGDGb7t1pWU2Jn90CCDvao2a3Ur'
+        }
+
+        """pay_load = {
+
+            "BusinessShortCode": current_app.config['MPESA_BUSINESS_CODE'],
+            "Password": self.lipa_na_mpesa_password()[0],
+            "TimeStamp": self.lipa_na_mpesa_password()[1],
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": 1,
+            "PartyA": number,
+            "PartyB": current_app.config['MPESA_BUSINESS_CODE'],
+            "PhoneNumber": number,
+            # use our custom route that the mpesa will call with the payment info
+            "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa",
+            "AccountRerence": "Flask",
+            "TransactionDesc": "Testing Stk push"
+
+        }"""
+        payload = {
+            "BusinessShortCode": current_app.config['MPESA_BUSINESS_CODE'],
+            "Password": self.lipa_na_mpesa_password()[0],
+            "Timestamp": self.lipa_na_mpesa_password()[1],
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": 1,
+            "PartyA": number,
+            "PartyB": 174379,
+            "PhoneNumber": number,
+            "CallBackURL": "https://mydomain.com/path",
+            "AccountReference": "CompanyXLTD",
+            "TransactionDesc": "Payment of X"
+        }
+
+        response = requests.post(
+            self.stk_push_url, json = payload, headers=headers)
+
+        pdb.set_trace()
+
+        if response.status_code == 404 or 400:
+
+            return False
+
+        return True
