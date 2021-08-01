@@ -22,6 +22,14 @@ class Mpesa:
         self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
         self.stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
 
+
+    def format_phone_number(self, number):
+
+        formart_number = list(number)
+        formart_number[0] = "254"
+
+        return "".join(formart_number)
+
     def access_token(self):
 
         auth_token = base64.b64encode(
@@ -34,7 +42,9 @@ class Mpesa:
         response_data = requests.get(
             self.auth_url, headers=headers, params=query_string)
 
-        return response_data.json()
+        access_token = response_data.json()['access_token']
+
+        return access_token
 
     def lipa_na_mpesa_password(self):
 
@@ -54,7 +64,7 @@ class Mpesa:
 
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f"Bearer {current_app.config['MPESA_LIPA_ACCESS_TOKEN']}"
+            'Authorization': f"Bearer {self.access_token()}"
         }
 
         payload = {
@@ -63,9 +73,9 @@ class Mpesa:
             "Timestamp": self.lipa_na_mpesa_password()[1],
             "TransactionType": "CustomerPayBillOnline",
             "Amount": 1,
-            "PartyA": number,
+            "PartyA": self.format_phone_number(number),
             "PartyB": 174379,
-            "PhoneNumber": number,
+            "PhoneNumber": self.format_phone_number(number),
             "CallBackURL": "https://mydomain.com/path",
             "AccountReference": "CompanyXLTD",
             "TransactionDesc": "Payment of X"
@@ -74,10 +84,10 @@ class Mpesa:
         response = requests.post(
             self.stk_push_url, json = payload, headers=headers)
 
-        pdb.set_trace()
+        if response.status_code == 200:
 
-        if response.status_code == 404 or 400:
+            return True
 
-            return False
+        else:
 
-        return True
+            False
