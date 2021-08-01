@@ -54,25 +54,9 @@ class Mpesa:
 
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer 0SGDGb7t1pWU2Jn90CCDvao2a3Ur'
+            'Authorization': f"Bearer {current_app.config['MPESA_LIPA_ACCESS_TOKEN']}"
         }
 
-        """pay_load = {
-
-            "BusinessShortCode": current_app.config['MPESA_BUSINESS_CODE'],
-            "Password": self.lipa_na_mpesa_password()[0],
-            "TimeStamp": self.lipa_na_mpesa_password()[1],
-            "TransactionType": "CustomerPayBillOnline",
-            "Amount": 1,
-            "PartyA": number,
-            "PartyB": current_app.config['MPESA_BUSINESS_CODE'],
-            "PhoneNumber": number,
-            # use our custom route that the mpesa will call with the payment info
-            "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa",
-            "AccountRerence": "Flask",
-            "TransactionDesc": "Testing Stk push"
-
-        }"""
         payload = {
             "BusinessShortCode": current_app.config['MPESA_BUSINESS_CODE'],
             "Password": self.lipa_na_mpesa_password()[0],

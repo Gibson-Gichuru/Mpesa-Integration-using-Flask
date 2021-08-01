@@ -21,6 +21,7 @@ class Config:
     MPESA_CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
     MPESA_BUSINESS_CODE = os.environ.get('BUSINESS_CODE')
     MPESA_PASS_KEY = os.environ.get("PASSKEY")
+    MPESA_LIPA_ACCESS_TOKEN = os.environ.get("LIPA_ACCESS_TOKEN")
 
 
     ## Database Configs
