@@ -21,6 +21,7 @@ class Mpesa:
 
         self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
         self.stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        self.c_2_b_register_url_endpoint = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
 
 
     def format_phone_number(self, number):
