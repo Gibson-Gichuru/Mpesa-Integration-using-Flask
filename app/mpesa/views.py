@@ -16,7 +16,7 @@ def index():
     return "Welcome to Mpesa Integration To Flask"
 
 
-@mpesa_bp.route('/sdk_push/<int:number>', methods=["GET", "POST"])
+@mpesa_bp.route('/sdk_push/<number>', methods=["GET", "POST"])
 def sdk_push(number):
 
     mpesa = Mpesa()
