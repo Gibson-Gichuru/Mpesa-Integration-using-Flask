@@ -1,5 +1,6 @@
 from flask.globals import current_app
-from flask import jsonify, url_for
+from flask import jsonify, url_for, Response
+from flask.helpers import make_response
 from requests.api import request
 from . import mpesa_bp
 
@@ -8,6 +9,10 @@ from app import db
 from app.models import MpesaPayment
 
 from app.mpesa_utils import Mpesa
+
+import requests
+
+import pdb
 
 
 @mpesa_bp.route('/')
@@ -35,25 +40,46 @@ def sdk_push(number):
 @mpesa_bp.route('/registerUrl')
 def register_url():
 
+    url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
+
     mpesa = Mpesa()
 
-    headers = {"Authorization": f"Bearer {mpesa.access_token()}"}
+    headers = {
 
-    options = {"ShortCode": current_app.config['MPESA_BUSINESS_CODE'], "ConfirmationURL": url_for(
-        'mpesa_bp.confirmation', _external=True), "ValidationURL": url_for('mpesa_bp.validation', _external=True)}
+        "HOST":"sandbox.safaricom.co.ke",
+        "Authorization": f"Bearer {mpesa.access_token()}",
+        "Content-Type":"application/json"
+    }
+
+    
+
+    options = {
+
+            "ShortCode": current_app.config['MPESA_BUSINESS_CODE'],
+            "ResponseType": "Completed",
+            "ConfirmationURL": url_for('mpesa_bp.confirmation', _external=True), 
+            "ValidationURL": url_for('mpesa_bp.validation', _external=True)
+        }
 
 
-    return "register c2b urls"
+    pdb.set_trace()
+
+   
+
+    response = requests.post(url, json = options, headers = headers)
 
 
-@mpesa_bp.route('/validation')
+    return response.text.encode('utf8')
+
+
+@mpesa_bp.route('/validation', methods = ["POST", "GET"])
 def validation():
 
     context = {"ResultCode": 0, "ResultDesc":"Accepted"}
 
     return jsonify(context)
 
-@mpesa_bp.route('/confirmation')
+@mpesa_bp.route('/confirmation', methods  = ["GET", "POST"])
 def confirmation():
 
     mpesa_body =request.body.decode('utf8')

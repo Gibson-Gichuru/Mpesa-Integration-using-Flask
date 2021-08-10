@@ -13,6 +13,9 @@ def create_app(config_name):
     config[config_name].init_app(app)
     db.init_app(app)
 
+    #from flask_sslify import SSLify
+
+    #sslify = SSLify(app)
     ##register blue Prints
 
     from .mpesa import mpesa_bp

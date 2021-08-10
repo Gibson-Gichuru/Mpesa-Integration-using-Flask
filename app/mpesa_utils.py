@@ -21,7 +21,6 @@ class Mpesa:
 
         self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
         self.stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-        self.c_2_b_register_url_endpoint = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
 
 
     def format_phone_number(self, number):
@@ -33,10 +32,11 @@ class Mpesa:
 
     def access_token(self):
 
-        auth_token = base64.b64encode(
-            f"{self.consumer_key}:{self.consumer_secret}".encode('utf8')).decode('utf8')
+        row_string = f"{self.consumer_key}:{self.consumer_secret}".encode('utf-8')
 
-        headers = {"Authorization": f"Basic {auth_token}"}
+        encoded_string = base64.b64encode(row_string).decode('utf-8')
+
+        headers = {"Authorization": f"Basic {encoded_string}"}
 
         query_string = {"grant_type": "client_credentials"}
 
@@ -45,7 +45,7 @@ class Mpesa:
 
         access_token = response_data.json()['access_token']
 
-        return access_token
+        return  access_token
 
     def lipa_na_mpesa_password(self):
 

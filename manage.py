@@ -17,7 +17,7 @@ migrate = Migrate(app, db)
 
 def make_shell_context():
 
-    return dic(app = app, db = db)
+    return dict(app = app, db = db)
 
 
 @manager.command
